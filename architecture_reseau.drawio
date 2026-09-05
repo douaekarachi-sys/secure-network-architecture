@@ -1,0 +1,221 @@
+<mxfile host="app.diagrams.net" agent="Claude">
+  <diagram id="architecture-reseau" name="Architecture Réseau Sécurisée">
+    <mxGraphModel dx="1873" dy="1116" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cloud_edge" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;verticalAlign=middle;" value="☁ Cloud EDGE&#xa;Prisma SASE + Cloudflare DDoS" vertex="1">
+          <mxGeometry height="70" width="260" x="840" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow_cloud_l1_left" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;fontColor=#6c8ebf;fontSize=10;" target="fw_cluster" value="MTLS">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="837" y="120" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hub_container" parent="1" style="swimlane;startSize=30;fillColor=#f5f5f5;strokeColor=#1f6feb;strokeWidth=2;fontStyle=1;fontSize=13;fontColor=#1f6feb;swimlaneLine=1;" value="HUB — CASABLANCA (Siège)" vertex="1">
+          <mxGeometry height="830" width="740" x="470" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="layer1_container" parent="hub_container" style="swimlane;startSize=25;fillColor=#f8f8f8;strokeColor=#666666;fontStyle=1;fontSize=11;fontColor=#333333;" value="LAYER 1 — Pare-feu périmétrique" vertex="1">
+          <mxGeometry height="100" width="700" x="20" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fw_cluster" parent="layer1_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;" value="Cluster Pare-feu FortiGate 6000F&#xa;SD-WAN · VPN IPSec inter-sites" vertex="1">
+          <mxGeometry height="50" width="280" x="20" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="fortimanager" parent="layer1_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="FortiManager&#xa;Gestion centralisée règles FW" vertex="1">
+          <mxGeometry height="50" width="180" x="320" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="fortianalyzer" parent="layer1_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="FortiAnalyzer&#xa;Centralisation des logs" vertex="1">
+          <mxGeometry height="50" width="170" x="515" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="layer2_container" parent="hub_container" style="swimlane;startSize=25;fillColor=#f0fff4;strokeColor=#1a7f64;fontStyle=1;fontSize=11;fontColor=#1a7f64;" value="LAYER 2 — DMZ applicatives (MTLS + default deny)" vertex="1">
+          <mxGeometry height="200" width="700" x="20" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="dmz_crm" parent="layer2_container" style="swimlane;startSize=22;fillColor=#d5f5e3;strokeColor=#1a7f64;fontStyle=1;fontSize=10;" value="DMZ CRM" vertex="1">
+          <mxGeometry height="155" width="320" x="20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="apps_crm" parent="dmz_crm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f5e3;strokeColor=#1a7f64;fontSize=10;" value="Applications CRM" vertex="1">
+          <mxGeometry height="35" width="180" x="70" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="waf" parent="dmz_crm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="WAF&#xa;Filtrage HTTP/S&#xa;OWASP Top 10" vertex="1">
+          <mxGeometry height="60" width="130" x="20" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="edr" parent="dmz_crm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="EDR&#xa;Cloudflare Falcon&#xa;Détection endpoints" vertex="1">
+          <mxGeometry height="60" width="140" x="165" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dmz_automate" parent="layer2_container" style="swimlane;startSize=22;fillColor=#d5f5e3;strokeColor=#1a7f64;fontStyle=1;fontSize=10;" value="DMZ Automate (M2M)" vertex="1">
+          <mxGeometry height="155" width="325" x="360" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="akamai" parent="dmz_automate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="Akamai API Gateway&#xa;Filtrage flux · Rate-limiting" vertex="1">
+          <mxGeometry height="50" width="140" x="15" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="pam" parent="dmz_automate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="HashiCorp Vault + CyberArk PAM&#xa;Coffre secrets · Accès privilégiés" vertex="1">
+          <mxGeometry height="50" width="140" x="170" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m2m_note" parent="dmz_automate" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontColor=#1a7f64;" value="Filtrage des flux inter-machines&#xa;Authentification mTLS obligatoire" vertex="1">
+          <mxGeometry height="45" width="295" x="15" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_l1_l2" edge="1" parent="hub_container" source="layer1_container" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1a7f64;fontColor=#1a7f64;fontSize=10;dashed=0;" target="layer2_container" value="MTLS + default deny">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="layer3_container" parent="hub_container" style="swimlane;startSize=25;fillColor=#f5f0ff;strokeColor=#6e40c9;fontStyle=1;fontSize=11;fontColor=#6e40c9;" value="LAYER 3 — LAN interne (séparation IT / OT)" vertex="1">
+          <mxGeometry height="280" width="700" x="10" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="fw_itot" parent="layer3_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=10;" value="Pare-feu séparation IT/OT&#xa;+ Data Diode (flux unidirectionnel)" vertex="1">
+          <mxGeometry height="50" width="240" x="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lan_it" parent="layer3_container" style="swimlane;startSize=22;fillColor=#e8d5f5;strokeColor=#6e40c9;fontStyle=1;fontSize=10;fontColor=#6e40c9;" value="LAN IT" vertex="1">
+          <mxGeometry height="165" width="330" x="20" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="it_postes" parent="lan_it" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="200 postes de travail&#xa;20 imprimantes" vertex="1">
+          <mxGeometry height="45" width="145" x="15" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="nac" parent="lan_it" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="NAC&#xa;Contrôle d&#39;accès réseau&#xa;Enrôlement postes" vertex="1">
+          <mxGeometry height="45" width="145" x="170" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="microseg" parent="lan_it" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="Micro-segmentation Platform&#xa;Contrôle flux East-West" vertex="1">
+          <mxGeometry height="45" width="145" x="15" y="85" as="geometry" />
+        </mxCell>
+        <mxCell id="uem" parent="lan_it" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="UEM&#xa;Unified Endpoint Mgmt&#xa;Patches · Config · Inventaire" vertex="1">
+          <mxGeometry height="45" width="145" x="170" y="85" as="geometry" />
+        </mxCell>
+        <mxCell id="acl" parent="lan_it" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede7f6;strokeColor=#6e40c9;fontSize=10;" value="ACL Switching · VLAN IT/OT séparation stricte" vertex="1">
+          <mxGeometry height="18" width="300" x="15" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="lan_ot" parent="layer3_container" style="swimlane;startSize=22;fillColor=#fde8e4;strokeColor=#b62d1e;fontStyle=1;fontSize=10;fontColor=#b62d1e;" value="LAN OT — Industriel" vertex="1">
+          <mxGeometry height="165" width="315" x="370" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="industrial_fw" parent="lan_ot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="Industrial / Ruggedized FW&#xa;Protocoles Modbus · OPC-UA" vertex="1">
+          <mxGeometry height="45" width="135" x="15" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="scada" parent="lan_ot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="SCADA / PLC&#xa;Systèmes de contrôle&#xa;IoT embarqués" vertex="1">
+          <mxGeometry height="45" width="135" x="165" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ot_visibility" parent="lan_ot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="OT Visibility &amp; Asset Discovery&#xa;Découverte passive des assets" vertex="1">
+          <mxGeometry height="45" width="285" x="15" y="85" as="geometry" />
+        </mxCell>
+        <mxCell id="ot_note" parent="lan_ot" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontColor=#b62d1e;" value="Flux unidirectionnel via Data Diode" vertex="1">
+          <mxGeometry height="18" width="285" x="15" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_fw_lanit" edge="1" parent="layer3_container" source="fw_itot" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6e40c9;" target="lan_it" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_fw_lanot" edge="1" parent="layer3_container" source="fw_itot" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b62d1e;" target="lan_ot" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_l2_fw" edge="1" parent="hub_container" source="layer2_container" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;fontSize=10;" target="fw_itot" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="layer4_container" parent="hub_container" style="swimlane;startSize=25;fillColor=#fff8e1;strokeColor=#f57f17;fontStyle=1;fontSize=11;fontColor=#e65100;" value="LAYER 4 — SOC Global (tous sites · toutes couches)" vertex="1">
+          <mxGeometry height="100" width="700" x="20" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="siem" parent="layer4_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="SIEM&#xa;Centralisation &amp; corrélation logs" vertex="1">
+          <mxGeometry height="50" width="200" x="20" y="33" as="geometry" />
+        </mxCell>
+        <mxCell id="soar" parent="layer4_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="SOAR&#xa;Réponse automatisée (playbooks)" vertex="1">
+          <mxGeometry height="50" width="200" x="240" y="33" as="geometry" />
+        </mxCell>
+        <mxCell id="mfa" parent="layer4_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="MFA — Entra ID Protect&#xa;Auth multi-facteurs · Risque comportemental" vertex="1">
+          <mxGeometry height="50" width="225" x="460" y="33" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_l3_l4" edge="1" parent="hub_container" source="layer3_container" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f57f17;fontColor=#e65100;fontSize=10;" target="layer4_container" value="Remontée logs &amp; alertes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nac_policy_container" parent="1" style="swimlane;startSize=25;fillColor=#f3e5f5;strokeColor=#6e40c9;fontStyle=1;fontSize=11;fontColor=#4a148c;" value="Politique NAC — Enrôlement des postes" vertex="1">
+          <mxGeometry height="170" width="740" x="470" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="nac_exceptions" parent="nac_policy_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;align=left;spacingLeft=8;" value="EXCEPTIONS — identification OUI MAC&#xa;&#xa;• Imprimantes → VLAN 120&#xa;• Téléphones VoIP → VLAN 120&#xa;• IoT / Systèmes embarqués → VLAN 120&#xa;&#xa;Fabricants : ZTE · Huawei · Nokia&#xa;(6 premiers octets adresse MAC)" vertex="1">
+          <mxGeometry height="120" width="330" x="20" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="nac_postes" parent="nac_policy_container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;align=left;spacingLeft=8;" value="POSTES &amp; SERVEURS — vérifications complètes&#xa;&#xa;✓ Conformité OS vérifiée&#xa;✓ Attaché au domaine Active Directory&#xa;✓ Antivirus actif et à jour&#xa;✓ Licence logicielle valide (non craquée)&#xa;✓ Authentification Login / MDP&#xa;✓ Vérification OUI MAC (DELL ?)" vertex="1">
+          <mxGeometry height="120" width="350" x="370" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="spoke_layoune" parent="1" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#1a7f64;fontStyle=1;fontSize=12;fontColor=#1a7f64;" value="SPOKE — Laâyoune" vertex="1">
+          <mxGeometry height="380" width="250" x="40" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_count" parent="spoke_layoune" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontColor=#555;" value="20 postes de travail + 1 imprimante" vertex="1">
+          <mxGeometry height="20" width="230" x="10" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_fw" parent="spoke_layoune" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f5e3;strokeColor=#1a7f64;fontStyle=1;fontSize=10;" value="FW Cluster&#xa;Filtrage &amp; routage local" vertex="1">
+          <mxGeometry height="50" width="200" x="25" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_siem" parent="spoke_layoune" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="SIEM · SOAR · MFA&#xa;Local + remontée Hub" vertex="1">
+          <mxGeometry height="45" width="200" x="25" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_it" parent="spoke_layoune" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="VLAN IT&#xa;20 postes" vertex="1">
+          <mxGeometry height="50" width="95" x="25" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_ot" parent="spoke_layoune" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="VLAN OT&#xa;Industriel / IoT" vertex="1">
+          <mxGeometry height="50" width="95" x="260" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_sep" parent="spoke_layoune" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontColor=#6e40c9;" value="Séparation VLAN IT / OT" vertex="1">
+          <mxGeometry height="15" width="230" x="10" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_tunnel" parent="spoke_layoune" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" value="Tunnel MTLS + IPSec AES-256&#xa;→ Hub Casablanca" vertex="1">
+          <mxGeometry height="45" width="200" x="25" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="lay_nmap" parent="spoke_layoune" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontColor=#888;" value="nmap — scan réseau local" vertex="1">
+          <mxGeometry height="15" width="230" x="10" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="spoke_tanger" parent="1" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#1a7f64;fontStyle=1;fontSize=12;fontColor=#1a7f64;" value="SPOKE — Tanger" vertex="1">
+          <mxGeometry height="380" width="250" x="1270" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_count" parent="spoke_tanger" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontColor=#555;" value="15 postes de travail + 1 imprimante" vertex="1">
+          <mxGeometry height="20" width="230" x="10" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_fw" parent="spoke_tanger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f5e3;strokeColor=#1a7f64;fontStyle=1;fontSize=10;" value="FW Cluster&#xa;Filtrage &amp; routage local" vertex="1">
+          <mxGeometry height="50" width="200" x="25" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_siem" parent="spoke_tanger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="SIEM · SOAR · MFA&#xa;Local + remontée Hub" vertex="1">
+          <mxGeometry height="45" width="200" x="25" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_it" parent="spoke_tanger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="VLAN IT&#xa;15 postes" vertex="1">
+          <mxGeometry height="50" width="95" x="25" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_ot" parent="spoke_tanger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="VLAN OT&#xa;Industriel / IoT" vertex="1">
+          <mxGeometry height="50" width="95" x="130" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_sep" parent="spoke_tanger" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontColor=#6e40c9;" value="Séparation VLAN IT / OT" vertex="1">
+          <mxGeometry height="15" width="230" x="10" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_tunnel" parent="spoke_tanger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" value="Tunnel MTLS + IPSec AES-256&#xa;→ Hub Casablanca" vertex="1">
+          <mxGeometry height="45" width="200" x="25" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tan_nmap" parent="spoke_tanger" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontColor=#888;" value="nmap — scan réseau local" vertex="1">
+          <mxGeometry height="15" width="230" x="10" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_lay_hub" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1a7f64;fontColor=#1a7f64;fontSize=10;strokeWidth=2;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="hub_container" value="MTLS + IPSec AES-256">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="410" y="500" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arr_tan_hub" edge="1" parent="1" source="spoke_tanger" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1a7f64;fontColor=#1a7f64;fontSize=10;strokeWidth=2;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="hub_container" value="MTLS + IPSec AES-256">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_hub_nac" edge="1" parent="1" source="hub_container" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6e40c9;fontColor=#6e40c9;fontSize=9;dashed=1;" target="nac_policy_container" value="Politique appliquée via FortiManager">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666;fontStyle=1;fontSize=11;" value="LÉGENDE" vertex="1">
+          <mxGeometry height="240" width="250" x="70" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="legend" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="Hub Casablanca (Siège)" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="legend" style="rounded=1;fillColor=#d5f5e3;strokeColor=#1a7f64;fontSize=10;" value="Spokes distants — FW Cluster" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="63" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="legend" style="rounded=1;fillColor=#e8d5f5;strokeColor=#6e40c9;fontSize=10;" value="LAN IT — postes de travail" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="legend" style="rounded=1;fillColor=#fde8e4;strokeColor=#b62d1e;fontSize=10;" value="LAN OT — industriel / SCADA / IoT" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="129" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" parent="legend" style="rounded=1;fillColor=#fff3cd;strokeColor=#f57f17;fontSize=10;" value="SOC — SIEM · SOAR · MFA" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" parent="legend" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="Sécurité applicative (WAF · EDR · API GW · PAM)" vertex="1">
+          <mxGeometry height="25" width="230" x="10" y="195" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
