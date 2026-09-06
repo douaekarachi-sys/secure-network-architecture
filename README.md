@@ -1,78 +1,68 @@
-# Architecture Réseau Sécurisée — Multi-sites (Hub & Spoke)
+# Secure Network Architecture — Multi-site (Hub & Spoke)
 
-Conception d'une **architecture de sécurité d'entreprise multi-sites** appliquant
-la **défense en profondeur** et les principes **Zero Trust** : segmentation en
-couches, séparation stricte IT / OT, chiffrement de bout en bout (mTLS + IPSec),
-et supervision centralisée par un SOC (SIEM / SOAR).
+Design of a **multi-site enterprise security architecture** applying
+**defense in depth** and **Zero Trust** principles: layered segmentation, strict
+IT / OT separation, end-to-end encryption (mTLS + IPSec), and centralized
+supervision by a SOC (SIEM / SOAR).
 
-Topologie **hub-and-spoke** : un siège (Casablanca) et deux sites distants
-(Laâyoune, Tanger) reliés par tunnels chiffrés.
+**Hub-and-spoke** topology: a headquarters (Casablanca) and two remote sites
+(Laâyoune, Tanger) connected by encrypted tunnels.
 
-> Projet de conception réalisé dans le cadre de ma formation en cybersécurité.
-> Le fichier source éditable est fourni : [`architecture_reseau.drawio`](architecture_reseau.drawio)
-> (ouvrir sur [app.diagrams.net](https://app.diagrams.net)).
-
----
-
-## Sommaire
-
-- [Vue d'ensemble en couches](#vue-densemble-en-couches)
-- [Topologie multi-sites](#topologie-multi-sites)
-- [Politique de contrôle d'accès (NAC)](#politique-de-contrôle-daccès-nac)
-- [Choix de conception & justifications](#choix-de-conception--justifications)
-- [Technologies par domaine](#technologies-par-domaine)
+> Design project for my cybersecurity coursework. The editable source is
+> included: [`architecture_reseau.drawio`](architecture_reseau.drawio)
+> (open at [app.diagrams.net](https://app.diagrams.net)).
 
 ---
 
-## Vue d'ensemble en couches
+## Layered overview
 
-Le trafic entre par le **Cloud EDGE** (SASE + protection DDoS) puis traverse
-quatre couches de sécurité, chacune avec sa fonction. Principe de base à chaque
-frontière : **default deny + mTLS**.
+Traffic enters through the **Cloud EDGE** (SASE + DDoS protection) then crosses
+four security layers, each with its own role. Baseline at every boundary:
+**default deny + mTLS**.
 
 ```mermaid
 flowchart TB
-    EDGE["☁ Cloud EDGE<br/>Prisma SASE + Cloudflare DDoS"]
+    EDGE["Cloud EDGE<br/>Prisma SASE + Cloudflare DDoS"]
 
-    subgraph HUB["🏢 HUB — CASABLANCA (Siège)"]
+    subgraph HUB["HUB — CASABLANCA (HQ)"]
         direction TB
 
-        subgraph L1["LAYER 1 — Pare-feu périmétrique"]
-            FW["Cluster FortiGate 6000F<br/>SD-WAN · VPN IPSec inter-sites"]
-            FM["FortiManager<br/>Gestion centralisée des règles"]
-            FA["FortiAnalyzer<br/>Centralisation des logs"]
+        subgraph L1["LAYER 1 — Perimeter firewall"]
+            FW["FortiGate 6000F cluster<br/>SD-WAN · IPSec VPN inter-site"]
+            FM["FortiManager<br/>centralized rule management"]
+            FA["FortiAnalyzer<br/>log centralization"]
         end
 
-        subgraph L2["LAYER 2 — DMZ applicatives · mTLS + default deny"]
-            subgraph DMZ1["DMZ CRM"]
-                CRM["Applications CRM"]
-                WAF["WAF<br/>Filtrage HTTP/S · OWASP Top 10"]
-                EDR["EDR<br/>Détection endpoints"]
+        subgraph L2["LAYER 2 — Application DMZs · mTLS + default deny"]
+            subgraph DMZ1["CRM DMZ"]
+                CRM["CRM applications"]
+                WAF["WAF<br/>HTTP/S filtering · OWASP Top 10"]
+                EDR["EDR<br/>endpoint detection"]
             end
-            subgraph DMZ2["DMZ Automate — M2M"]
-                API["Akamai API Gateway<br/>Filtrage flux · Rate-limiting"]
-                PAM["HashiCorp Vault + CyberArk PAM<br/>Coffre secrets · Accès privilégiés"]
+            subgraph DMZ2["Automation DMZ — M2M"]
+                API["Akamai API Gateway<br/>flow filtering · rate-limiting"]
+                PAM["HashiCorp Vault + CyberArk PAM<br/>secrets · privileged access"]
             end
         end
 
-        subgraph L3["LAYER 3 — LAN interne · séparation IT / OT"]
-            FWIT["Pare-feu IT/OT<br/>+ Data Diode (flux unidirectionnel)"]
-            subgraph LANIT["LAN IT"]
-                ITP["200 postes · 20 imprimantes"]
-                NAC["NAC · Enrôlement des postes"]
+        subgraph L3["LAYER 3 — Internal LAN · IT / OT separation"]
+            FWIT["IT/OT firewall<br/>+ Data Diode (one-way flow)"]
+            subgraph LANIT["IT LAN"]
+                ITP["200 workstations · 20 printers"]
+                NAC["NAC · device enrollment"]
                 MSEG["Micro-segmentation · East-West"]
-                UEM["UEM · Patches · Inventaire"]
+                UEM["UEM · patching · inventory"]
             end
-            subgraph LANOT["LAN OT — Industriel"]
+            subgraph LANOT["OT LAN — Industrial"]
                 IFW["Industrial FW<br/>Modbus · OPC-UA"]
-                SCADA["SCADA / PLC · IoT embarqués"]
+                SCADA["SCADA / PLC · embedded IoT"]
                 OTV["OT Visibility & Asset Discovery"]
             end
         end
 
-        subgraph L4["LAYER 4 — SOC Global"]
-            SIEM["SIEM · corrélation des logs"]
-            SOAR["SOAR · réponse automatisée"]
+        subgraph L4["LAYER 4 — Global SOC"]
+            SIEM["SIEM · log correlation"]
+            SOAR["SOAR · automated response"]
             MFA["MFA — Entra ID Protect"]
         end
     end
@@ -81,104 +71,107 @@ flowchart TB
     L1 -->|"mTLS + default deny"| L2
     L2 --> FWIT
     FWIT --> LANIT
-    FWIT -->|"flux unidirectionnel via Data Diode"| LANOT
-    L3 -->|"remontée logs & alertes"| L4
+    FWIT -->|"one-way flow via Data Diode"| LANOT
+    L3 -->|"logs & alerts upstream"| L4
 ```
+
+Key security point: the `internal` OT flow is protected by a **data diode** that
+makes the path **physically one-way** — the industrial world can be observed but
+never reached from IT.
 
 ---
 
-## Topologie multi-sites
+## Multi-site topology
 
-Les sites distants (spokes) répliquent une pile de sécurité locale (FW, SIEM,
-SOAR, MFA, séparation VLAN IT/OT) et remontent vers le hub via des tunnels
-**mTLS + IPSec AES-256**. La politique de sécurité est poussée depuis le hub via
-**FortiManager**.
+Remote sites (spokes) replicate a local security stack (FW, SIEM, SOAR, MFA,
+IT/OT VLAN separation) and report to the hub over **mTLS + IPSec AES-256**
+tunnels. Policy is pushed from the hub via **FortiManager**.
 
 ```mermaid
 flowchart TB
-    subgraph HUBC["🏢 HUB — CASABLANCA"]
-        HSEC["SOC central · SIEM · SOAR · MFA<br/>FortiManager (politique centrale)"]
+    subgraph HUBC["HUB — CASABLANCA"]
+        HSEC["Central SOC · SIEM · SOAR · MFA<br/>FortiManager (central policy)"]
     end
 
-    subgraph SP1["📍 SPOKE — Laâyoune"]
-        L_FW["FW Cluster · filtrage & routage local"]
-        L_SIEM["SIEM · SOAR · MFA (local + remontée)"]
-        L_IT["VLAN IT · 20 postes"]
-        L_OT["VLAN OT · Industriel / IoT"]
+    subgraph SP1["SPOKE — Laâyoune"]
+        L_FW["local FW cluster · filtering & routing"]
+        L_SIEM["SIEM · SOAR · MFA (local + upstream)"]
+        L_IT["IT VLAN · 20 workstations"]
+        L_OT["OT VLAN · Industrial / IoT"]
         L_FW --- L_IT
         L_FW --- L_OT
     end
 
-    subgraph SP2["📍 SPOKE — Tanger"]
-        T_FW["FW Cluster · filtrage & routage local"]
-        T_SIEM["SIEM · SOAR · MFA (local + remontée)"]
-        T_IT["VLAN IT · 15 postes"]
-        T_OT["VLAN OT · Industriel / IoT"]
+    subgraph SP2["SPOKE — Tanger"]
+        T_FW["local FW cluster · filtering & routing"]
+        T_SIEM["SIEM · SOAR · MFA (local + upstream)"]
+        T_IT["IT VLAN · 15 workstations"]
+        T_OT["OT VLAN · Industrial / IoT"]
         T_FW --- T_IT
         T_FW --- T_OT
     end
 
-    SP1 -->|"Tunnel mTLS + IPSec AES-256"| HUBC
-    SP2 -->|"Tunnel mTLS + IPSec AES-256"| HUBC
-    HUBC -->|"Politique NAC via FortiManager"| SP1
-    HUBC -->|"Politique NAC via FortiManager"| SP2
+    SP1 -->|"mTLS + IPSec AES-256 tunnel"| HUBC
+    SP2 -->|"mTLS + IPSec AES-256 tunnel"| HUBC
+    HUBC -->|"NAC policy via FortiManager"| SP1
+    HUBC -->|"NAC policy via FortiManager"| SP2
 ```
 
 ---
 
-## Politique de contrôle d'accès (NAC)
+## Network Access Control (NAC) policy
 
-À la connexion, chaque équipement est identifié par son **OUI MAC** (les 6
-premiers octets = fabricant). Les équipements sans supplicant (imprimantes,
-VoIP, IoT) partent en VLAN dédié ; les postes et serveurs subissent une
-vérification complète de conformité avant d'obtenir un accès.
+On connection, each device is identified by its **MAC OUI** (first 6 bytes =
+vendor). Devices with no supplicant (printers, VoIP, IoT) go to a dedicated VLAN;
+workstations and servers undergo full compliance checks before being granted
+access.
 
 ```mermaid
 flowchart TB
-    START["Équipement tente de se connecter"] --> NAC{"NAC — identification OUI MAC"}
+    START["Device attempts to connect"] --> NAC{"NAC — MAC OUI identification"}
 
-    NAC -->|"Imprimante · VoIP · IoT<br/>(ZTE · Huawei · Nokia)"| VLAN120["→ VLAN 120<br/>exception (pas de supplicant)"]
+    NAC -->|"Printer · VoIP · IoT<br/>(ZTE · Huawei · Nokia)"| VLAN120["→ VLAN 120<br/>exception (no supplicant)"]
 
-    NAC -->|"Poste / Serveur"| CHECK{"Vérifications de conformité"}
-    CHECK -->|"✓ OS conforme<br/>✓ Attaché au domaine AD<br/>✓ Antivirus actif & à jour<br/>✓ Licence valide (non craquée)<br/>✓ Login / MDP<br/>✓ OUI MAC constructeur (DELL)"| GRANT["Accès autorisé<br/>→ VLAN IT"]
-    CHECK -->|"Échec d'un contrôle"| DENY["Accès refusé<br/>→ quarantaine"]
+    NAC -->|"Workstation / Server"| CHECK{"Compliance checks"}
+    CHECK -->|"OS compliant<br/>AD domain-joined<br/>AV active & updated<br/>valid license<br/>login / password<br/>vendor MAC OUI (DELL)"| GRANT["Access granted<br/>→ IT VLAN"]
+    CHECK -->|"any check fails"| DENY["Access denied<br/>→ quarantine"]
 ```
 
 ---
 
-## Choix de conception & justifications
+## Design decisions & rationale
 
-| Décision | Pourquoi |
-|----------|----------|
-| **Défense en profondeur (4 couches)** | Une seule barrière ne suffit pas ; chaque couche limite la propagation si la précédente tombe. |
-| **Default deny + mTLS partout** | Rien n'est autorisé par défaut ; l'authentification mutuelle empêche l'usurpation de service. |
-| **Séparation IT / OT + Data Diode** | Le monde industriel (SCADA/PLC) ne doit jamais être atteignable depuis l'IT ; le data diode rend le flux **physiquement** unidirectionnel. |
-| **Hub & Spoke chiffré (IPSec AES-256)** | Centralise la politique et la supervision tout en gardant une autonomie locale sur chaque site. |
-| **SOC global (SIEM + SOAR)** | Corrélation des logs de tous les sites/couches + réponse automatisée par playbooks. |
-| **NAC avec exceptions OUI** | Contrôle d'accès réaliste : on ne peut pas exiger un supplicant d'une imprimante, d'où le VLAN d'exception. |
-| **Micro-segmentation East-West** | Bloque les déplacements latéraux d'un attaquant déjà entré. |
-
----
-
-## Technologies par domaine
-
-| Domaine | Solutions |
-|---------|-----------|
-| **Edge / SASE** | Prisma SASE, Cloudflare (DDoS) |
-| **Pare-feu / SD-WAN** | FortiGate 6000F, FortiManager, FortiAnalyzer |
-| **Sécurité applicative** | WAF (OWASP Top 10), EDR, Akamai API Gateway |
-| **Secrets / PAM** | HashiCorp Vault, CyberArk |
-| **Accès réseau** | NAC, micro-segmentation, VLAN IT/OT, ACL |
-| **Endpoints** | UEM (patches, inventaire), EDR |
-| **OT / Industriel** | Industrial FW (Modbus, OPC-UA), Data Diode, OT visibility |
-| **SOC** | SIEM, SOAR, MFA (Entra ID Protect) |
-| **Chiffrement** | mTLS, IPSec AES-256 |
+| Decision | Why |
+|----------|-----|
+| **Defense in depth (4 layers)** | One barrier isn't enough; each layer limits propagation if the previous one falls. |
+| **Default deny + mTLS everywhere** | Nothing is allowed by default; mutual auth prevents service impersonation. |
+| **IT / OT separation + Data Diode** | Industrial systems (SCADA/PLC) must never be reachable from IT; the diode makes the flow **physically** one-way. |
+| **Encrypted hub & spoke (IPSec AES-256)** | Centralizes policy and monitoring while keeping local autonomy per site. |
+| **Global SOC (SIEM + SOAR)** | Correlates logs across all sites/layers + automated playbook response. |
+| **NAC with OUI exceptions** | Realistic access control: you can't require a supplicant from a printer, hence the exception VLAN. |
+| **East-West micro-segmentation** | Blocks lateral movement of an attacker already inside. |
 
 ---
 
-## Fichier source
+## Technologies by domain
 
-Le diagramme complet original (avec la mise en page graphique et la légende
-couleur) est éditable ici : [`architecture_reseau.drawio`](architecture_reseau.drawio).
-Pour l'exporter en image et l'ajouter dans `docs/` :
-ouvrir sur [app.diagrams.net](https://app.diagrams.net) → *File → Export as → PNG*.
+| Domain | Solutions |
+|--------|-----------|
+| Edge / SASE | Prisma SASE, Cloudflare (DDoS) |
+| Firewall / SD-WAN | FortiGate 6000F, FortiManager, FortiAnalyzer |
+| Application security | WAF (OWASP Top 10), EDR, Akamai API Gateway |
+| Secrets / PAM | HashiCorp Vault, CyberArk |
+| Network access | NAC, micro-segmentation, IT/OT VLANs, ACLs |
+| Endpoints | UEM (patching, inventory), EDR |
+| OT / Industrial | Industrial FW (Modbus, OPC-UA), Data Diode, OT visibility |
+| SOC | SIEM, SOAR, MFA (Entra ID Protect) |
+| Encryption | mTLS, IPSec AES-256 |
+
+---
+
+## Source file
+
+The full original diagram (with graphical layout and color legend) is editable
+at [`architecture_reseau.drawio`](architecture_reseau.drawio). To export it as an
+image into `docs/`: open at [app.diagrams.net](https://app.diagrams.net) →
+*File → Export as → PNG*.
